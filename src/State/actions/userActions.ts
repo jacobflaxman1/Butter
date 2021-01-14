@@ -8,9 +8,10 @@ export const logUserOut = () => ({ type: "LOG_OUT" });
 export const logUserIn = (email: String, password: String) => (
   dispatch: any
 ) => {
+  // handle errors
   loginUser(email, password).then((res: any) => {
     storeJWT(res.data.data.token);
-    dispatch(setUser(res.data.data.user));
+    dispatch(setUser(res.data));
   });
 };
 

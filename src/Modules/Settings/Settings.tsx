@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 
 export default function Settings() {
   const dispatch = useDispatch();
+  
   return (
     <View style={styles.container}>
       <Button title="Log Out" onPress={() => dispatch(logUserOut())} />

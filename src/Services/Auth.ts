@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://192.168.1.104:3000/api/user";
+const BASE_URL = "http://192.168.2.101:3000/api/user";
 
 export function registerLocalUser(
   name: String,

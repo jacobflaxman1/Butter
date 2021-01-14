@@ -23,7 +23,7 @@ const AppNavigator = () => {
       <Stack.Screen
         name="ExpandedPost"
         component={ExpandedPost}
-        options={{ title: "The Good Reader", headerShown: false }}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   ) : (

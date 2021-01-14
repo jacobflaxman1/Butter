@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, StyleSheet, Button } from "react-native";
-import t, { FormRef, TCombFormOptions } from "tcomb-form-native";
-import { formStyleSheet } from "../../Styles/styles";
+import { View, StyleSheet } from "react-native";
+import { Button, TextInput } from "react-native-paper";
 import { useDispatch } from "react-redux";
 import { logUserIn } from "../../State/actions/userActions";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../Navigator/index";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 interface LoginForm {
   name: string;
@@ -18,68 +18,77 @@ interface LoginScreenProps {
   navigation: StackNavigationProp<RootStackParamList, "Login">;
 }
 
-const { Form } = t.form;
-
 export default function LoginScreen(props: LoginScreenProps) {
-  const [formVal, setFormVal] = useState({ email: "", password: "" });
-  const formRef = useRef<FormRef>(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  let FormModel: any = t.struct({
-    email: t.String,
-    password: t.String,
-  });
-
-  const formOptions: TCombFormOptions = {
-    stylesheet: formStyleSheet,
-    auto: "placeholders",
-    fields: {
-      email: {
-        type: "email",
-      },
-      password: {
-        password: true,
-        secureTextEntry: true,
-      },
-    },
-  };
-
   const handleLogIn = () => {
-    dispatch(logUserIn(formVal.email, formVal.password));
+    dispatch(logUserIn(username, password));
   };
   return (
     <View style={styles.container}>
-      <Form
-        ref={formRef}
-        options={formOptions}
-        type={FormModel}
-        value={formVal}
-        onChange={(f: LoginForm) => setFormVal(f)}
-        //auto cap is not working
-        autoCapitalize="none"
+      <TextInput
+        style={styles.textInput}
+        placeholder="username"
+        value={username}
+        onChangeText={(t) => setUsername(t)}
+        underlineColor="#FFBE88"
+        selectionColor="#FFBE88"
+        mode="outlined"
+        theme={{
+          roundness: 10,
+          colors: { accent: "#FFBE88", primary: "#FFBE88" },
+        }}
       />
-      <Button title="Log In" onPress={() => handleLogIn()} />
-      <View style={styles.signUpButton}>
-        <Button
-          title="Sign Up"
-          onPress={() => navigation.navigate("Register")}
-        />
-      </View>
+      <TextInput
+        underlineColor="#FFBE88"
+        selectionColor="#FFBE88"
+        style={styles.textInput}
+        placeholder="password"
+        value={password}
+        onChangeText={(t) => setPassword(t)}
+        mode="outlined"
+        theme={{
+          roundness: 10,
+          colors: { accent: "#FFBE88", primary: "#FFBE88" },
+        }}
+      />
+      <Button
+        style={styles.button}
+        onPress={() => handleLogIn()}
+        mode="contained"
+      >
+        {" "}
+        Login{" "}
+      </Button>
+      <Button
+        style={styles.button}
+        mode="contained"
+        onPress={() => navigation.navigate("Register")}
+      >
+        Sign Up
+      </Button>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "center",
-    width: 254,
     flex: 1,
-    alignItems: "center",
-    flexDirection: "column",
+    backgroundColor: "#63BCC9",
     justifyContent: "center",
   },
-  signUpButton: {
-    justifyContent: "flex-end",
+  button: {
+    margin: 10,
+    padding: 5,
+    backgroundColor: "#FFBE88",
+  },
+  textInput: {
+    margin: 10,
+    padding: 5,
+    color: "#FFBE88",
   },
 });

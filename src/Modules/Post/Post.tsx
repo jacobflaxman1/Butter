@@ -1,27 +1,32 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, Image, View } from "react-native";
+import { StyleSheet, TouchableOpacity, Image, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-// TODO: how to load a single expanded post -> send post data as props to expanded post
+import { Button, Text, Headline, Card } from "react-native-paper";
+import * as Linking from "expo-linking";
 
-function Post(props) {
+function Post(props: any) {
   const navigation = useNavigation();
+
+  const handleLinking = () => {
+    Linking.openURL(
+      "https://open.spotify.com/track/0vqwYyDykchn3bZrsc3SRi?si=EStvAl2LT9ybTMzyKIXlwQ"
+    );
+  };
+  console.log("PROPS", props);
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={() =>
-        navigation.navigate({ name: "ExpandedPost", params: props.id })
-      }
-    >
-      <View key={props.key}>
-        <Text style={styles.post}>{props.title}</Text>
-        <Text style={styles.post}>{props.body}</Text>
+    <>
+      <Card key={props.key} style={styles.container}>
+        <Card.Title title={props.title} />
+        <Card.Content>
+          <Text style={styles.post}>{props.body}</Text>
+        </Card.Content>
+        <Card.Content>
+          <Image source={{ uri: props.url }} style={styles.thumbnail} />
+        </Card.Content>
         {/* <Text style={styles.text}>By {props.Author} </Text> */}
-      </View>
-      <Image
-        source={{ uri: "https://picsum.photos/200/300" }}
-        style={styles.thumbnail}
-      />
-    </TouchableOpacity>
+        <Button onPress={() => handleLinking()}>To Link</Button>
+      </Card>
+    </>
   );
 }
 
@@ -38,8 +43,8 @@ const styles = StyleSheet.create({
     margin: "2%",
   },
   thumbnail: {
-    height: 70,
-    width: 70,
+    height: 150,
+    width: 150,
     margin: "2%",
   },
   text: {

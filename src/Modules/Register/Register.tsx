@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
-import { View, StyleSheet, Button } from "react-native";
-import t, { FormRef, TCombFormOptions } from "tcomb-form-native";
-import { formStyleSheet } from "../../Styles/styles";
+import { View, StyleSheet } from "react-native";
+import { Button, TextInput } from "react-native-paper";
+
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../State/actions/userActions";
 import { useNavigation } from "@react-navigation/native";
@@ -12,65 +12,86 @@ interface RegistrationForm {
   password: string;
 }
 
-const { Form } = t.form;
-
 // TODO: Change the login screen to a register screen change appnavigatro to render appropriately
 
-export default function LoginScreen(props) {
-  const [formVal, setFormVal] = useState({ name: "", email: "", password: "" });
-  const formRef = useRef<FormRef>(null);
+export default function LoginScreen(props: any) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  let FormModel: any = t.struct({
-    name: t.String,
-    email: t.String,
-    password: t.String,
-  });
-
-  const formOptions: TCombFormOptions = {
-    stylesheet: formStyleSheet,
-    auto: "placeholders",
-    fields: {
-      name: {
-        type: "name",
-      },
-      email: {
-        type: "email",
-      },
-      password: {
-        password: true,
-        secureTextEntry: true,
-      },
-    },
-  };
-
   const handleRegistration = () => {
-    dispatch(registerUser(formVal.name, formVal.email, formVal.password));
-    navigation.navigate("LoginScreen");
+    dispatch(registerUser(name, email, password));
+    navigation.navigate("LoginScreen", { name, email, password });
   };
 
   return (
     <View style={styles.container}>
-      <Form
-        ref={formRef}
-        options={formOptions}
-        type={FormModel}
-        value={formVal}
-        onChange={(f: RegistrationForm) => setFormVal(f)}
+      <TextInput
+        style={styles.textInput}
+        placeholder="username"
+        value={name}
+        onChangeText={(t) => setName(t)}
+        underlineColor="#FFBE88"
+        selectionColor="#FFBE88"
+        mode="outlined"
+        theme={{
+          roundness: 10,
+          colors: { accent: "#FFBE88", primary: "#FFBE88" },
+        }}
       />
-      <Button title="Sign Up" onPress={() => handleRegistration()} />
+      <TextInput
+        style={styles.textInput}
+        placeholder="email"
+        value={email}
+        onChangeText={(t) => setEmail(t)}
+        underlineColor="#FFBE88"
+        selectionColor="#FFBE88"
+        mode="outlined"
+        theme={{
+          roundness: 10,
+          colors: { accent: "#FFBE88", primary: "#FFBE88" },
+        }}
+      />
+      <TextInput
+        underlineColor="#FFBE88"
+        selectionColor="#FFBE88"
+        style={styles.textInput}
+        placeholder="password"
+        value={password}
+        onChangeText={(t) => setPassword(t)}
+        mode="outlined"
+        theme={{
+          roundness: 10,
+          colors: { accent: "#FFBE88", primary: "#FFBE88" },
+        }}
+      />
+      <Button
+        style={styles.button}
+        mode="contained"
+        onPress={() => handleRegistration()}
+      >
+        Sign Up
+      </Button>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "center",
-    width: 254,
     flex: 1,
-    alignItems: "center",
-    flexDirection: "column",
+    backgroundColor: "#63BCC9",
     justifyContent: "center",
+  },
+  button: {
+    margin: 10,
+    padding: 5,
+    backgroundColor: "#FFBE88",
+  },
+  textInput: {
+    margin: 10,
+    padding: 5,
+    color: "#FFBE88",
   },
 });

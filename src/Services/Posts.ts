@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { getJWT } from "../Helpers/AsyncStorageHelpers";
 
-const BASE_URL = "http://192.168.1.104:3000/api";
+const BASE_URL = "http://192.168.2.101:3000/api";
 
 const JWT = getJWT();
 
