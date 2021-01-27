@@ -6,51 +6,88 @@ import { useSelector } from "react-redux";
 import { getUser } from "../../State/selectors/selectors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Searchbar, Card, Button } from "react-native-paper";
+import { ScrollView } from "react-native-gesture-handler";
+import { fetchTrackData } from "../../State/slices/postSlice";
+import * as Linking from "expo-linking";
+import { useAppDispatch } from "../../State/utils";
+import { fetchSpotifyData, getPostById, getPosts } from "../../Services/Posts";
+import { getJWT } from "../../Helpers/AsyncStorageHelpers";
+import {
+  spotifyToken,
+  authToken,
+  postData,
+} from "../../State/selectors/selectors";
+
+interface TrackObject {
+  album: string;
+  image: string;
+  artist: string;
+  trackName: string;
+  externalUrl: string;
+  user: string;
+}
+interface TrackData {
+  array: TrackObject;
+}
+
+// get track ids -> get track data
 
 export default function PostList() {
   const user = useSelector(getUser);
-  const [data, setData] = useState([]);
+  const [trackData, setTrackData] = useState<Array<TrackObject>>([]);
   const [search, setSearch] = useState("");
-  const spotifyToken = user.data.spotifyToken.access_token;
+  const dispatch = useAppDispatch();
+  const spotify_token: any = useSelector(spotifyToken);
+  const auth_token: any = useSelector(authToken);
+  const posts: Array<string> = useSelector(postData);
 
-  const fetchSpotifyData = async () => {
-    // this is going to loop over all of the uris in the data base and push them into an arrary
-    const data: any = new Promise((resolve: any, reject: any) => {
-      axios
-        .get("https://api.spotify.com/v1/tracks/7o5jLtd1oTSxtPPeRchT2j", {
-          headers: {
-            Authorization: `Bearer ${spotifyToken}`,
-          },
-        })
-        .then((res) => resolve(res));
-    });
-    return data;
+  const handleFetchPosts = async (postsData: any) => {
+    const resultAction = await dispatch(fetchTrackData({ user, postsData }));
   };
+
   useEffect(() => {
-    fetchSpotifyData()
-      .then((res) => setData(res.data))
-      .then(() => console.log(data.name));
+    getPosts(auth_token).then((posts: any) => handleFetchPosts(posts.data));
   }, []);
 
+  const handleLinking = (url: string) => {
+    Linking.openURL(url);
+  };
+
   return (
-    <LinearGradient colors={["#FFBE88", "#47CACC"]} style={styles.container}>
-      <Searchbar placeholder="..." value={search} />
-      {data && (
-        <Card style={styles.cardContainer}>
-          <Card.Title title={data.name} />
-          <Card.Content>
-            <Text>{data.artists[0].name}</Text>
-          </Card.Content>
-          <Card.Content>
-            <Image
-              source={{ uri: data.album.images[0].url }}
-              style={styles.thumbnail}
-            />
-          </Card.Content>
-          {/* <Text style={styles.text}>By {props.Author} </Text> */}
-          {/* <Button onPress={() => handleLinking()}>To Link</Button> */}
-        </Card>
-      )}
+    <LinearGradient style={styles.container} colors={["#FFBE88", "#47CACC"]}>
+      <Searchbar
+        placeholder="..."
+        value={search}
+        onChangeText={(t) => setSearch(t)}
+      />
+      <ScrollView>
+        {posts &&
+          posts.length > 0 &&
+          posts.map((d: any) => {
+            return (
+              <Card
+                style={styles.cardContainer}
+                theme={{ roundness: 20 }}
+                key={d.externalUrl}
+              >
+                <Card.Content style={styles.user}>
+                  <Text>{d.user}</Text>
+                </Card.Content>
+                <Card.Title title={d.trackName} />
+                <Card.Content>
+                  <Text>{d.artist}</Text>
+                </Card.Content>
+                <Card.Content>
+                  <Image source={{ uri: d.image }} style={styles.thumbnail} />
+                </Card.Content>
+                {/* <Text style={styles.text}>By {props.Author} </Text> */}
+                <Button onPress={() => handleLinking(d.externalUrl)}>
+                  To Link
+                </Button>
+              </Card>
+            );
+          })}
+      </ScrollView>
     </LinearGradient>
   );
 }
@@ -64,6 +101,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     margin: 15,
     marginTop: 50,
+    justifyContent: "center",
   },
   post: {
     margin: "2%",
@@ -72,9 +110,13 @@ const styles = StyleSheet.create({
     height: 150,
     width: 150,
     margin: "2%",
+    alignSelf: "flex-end",
   },
   text: {
     color: "black",
     margin: "2%",
+  },
+  user: {
+    alignSelf: "flex-end",
   },
 });

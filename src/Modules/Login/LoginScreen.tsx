@@ -1,13 +1,13 @@
 import React, { useState, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, TextInput } from "react-native-paper";
-import { useDispatch } from "react-redux";
-import { logUserIn } from "../../State/actions/userActions";
+// import { logUserIn } from "../../State/actions/userActions";
+import { login } from "../../State/slices/userSlice";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../Navigator/index";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-
+import { useAppDispatch } from "../../State/utils";
 interface LoginForm {
   name: string;
   email: string;
@@ -19,22 +19,23 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen(props: LoginScreenProps) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
-  const handleLogIn = () => {
-    dispatch(logUserIn(username, password));
+  const handleLogIn = async () => {
+    const resultAction = await dispatch(login({ email, password }));
+    console.log(resultAction);
   };
   return (
     <View style={styles.container}>
       <TextInput
         style={styles.textInput}
         placeholder="username"
-        value={username}
-        onChangeText={(t) => setUsername(t)}
+        value={email}
+        onChangeText={(t) => setEmail(t)}
         underlineColor="#FFBE88"
         selectionColor="#FFBE88"
         mode="outlined"

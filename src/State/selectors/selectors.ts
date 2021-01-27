@@ -1,2 +1,8 @@
-export const isSignedIn = (state) => state.userReducer.loggedIn;
-export const getUser = (state) => state.userReducer.user;
+import { RootState } from "../store";
+
+export const isSignedIn = (state: RootState) => !!state.user.user;
+export const getUser = (state: RootState) => state.user.user;
+export const spotifyToken = (state: RootState) => state.user.user?.spotifyToken;
+export const authToken = (state: RootState) => state.user.user?.token;
+
+export const postData = (state: RootState) => state.posts.posts;

@@ -1,69 +1,58 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Button, View } from "react-native";
-import t, { FormRef, TCombFormOptions } from "tcomb-form-native";
-import { formStyleSheet, createStyleSheet } from "../../Styles/styles";
+import { StyleSheet, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { TextInput, Button } from "react-native-paper";
 import { submitPost } from "../../Services/Posts";
 import { useSelector } from "react-redux";
 import { getUser } from "../../State/selectors/selectors";
 import { useNavigation } from "@react-navigation/native";
-
-const { Form } = t.form;
-
-interface CreateForm {
-  title: string;
-  body: string;
-}
+import { LinearGradient } from "expo-linear-gradient";
+import { submitNewPost } from "../../State/slices/postSlice";
+import { useAppDispatch } from "../../State/utils";
 
 export default function Create() {
-  const [form, setForm] = useState({ title: "", body: "" });
-  const formRef = useRef<FormRef>(null);
-  const user = useSelector(getUser);
+  const user: any = useSelector(getUser);
   const navigation = useNavigation();
+  const [uri, setUri] = useState("");
+  const [description, setDescription] = useState("");
+  const dispatch = useAppDispatch();
 
-  let FormModel: any = t.struct({
-    title: t.String,
-    body: t.String,
-  });
-
-  const formOptions: TCombFormOptions = {
-    auto: "placeholders",
-    fields: {
-      title: {
-        type: "title",
-        stylesheet: formStyleSheet,
-      },
-      body: {
-        type: "body",
-        stylesheet: createStyleSheet,
-        multiline: true,
-      },
-    },
-  };
-
-  const handleSubmit = (title: string, body: string, user: string) => {
-    submitPost(title, body, user)
+  const { token } = user;
+  const handleSubmit = async () => {
+    dispatch(submitNewPost({ uri, description, token }))
       .then((res: any) => {
-        navigation.navigate({
-          name: "ExpandedPost",
-          params: { id: res.data.id },
-        });
+        navigation.navigate("Posts");
       })
-      .then(() => setForm({ title: "", body: "" }));
+      .then(() => {
+        setUri("");
+        setDescription("");
+      });
   };
-
-  const { title, body } = form;
 
   return (
-    <View style={styles.container}>
-      <Form
-        ref={formRef}
-        options={formOptions}
-        type={FormModel}
-        value={form}
-        onChange={(f: CreateForm) => setForm(f)}
-      />
-      <Button title="Submit" onPress={() => handleSubmit(title, body, user)} />
-    </View>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <LinearGradient colors={["#FFBE88", "#47CACC"]} style={styles.container}>
+        <TextInput
+          label="Song Url (spotify uri)"
+          value={uri}
+          onChangeText={(t) => setUri(t)}
+          style={styles.textInput}
+        />
+        <TextInput
+          label="description"
+          value={description}
+          onChangeText={(t) => setDescription(t)}
+          style={{ ...styles.textInput, height: 300 }}
+          multiline
+        />
+        <Button
+          mode="contained"
+          onPress={() => handleSubmit()}
+          style={styles.button}
+        >
+          Submit
+        </Button>
+      </LinearGradient>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -71,7 +60,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
+    // alignItems: "center",
     justifyContent: "center",
+  },
+  textInput: {
+    margin: 10,
+    padding: 5,
+    color: "#FFBE88",
+  },
+  button: {
+    margin: 10,
+    padding: 5,
+    backgroundColor: "#FFBE88",
   },
 });

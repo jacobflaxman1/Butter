@@ -8,12 +8,26 @@ export const storeJWT = async (value: string) => {
   }
 };
 
+export const storeSpotifyToken = async (value: string) => {
+  try {
+    await AsyncStorage.setItem("SPOTIFY_TOKEN", value);
+  } catch (e) {
+    // saving error
+  }
+};
+
 export const getJWT = async () => {
   try {
     const value = await AsyncStorage.getItem("JWT_TOKEN");
-    if (value !== null) {
-      // value previously stored
-    }
+    return value;
+  } catch (e) {
+    // error reading value
+  }
+};
+export const getSpotifyToken = async () => {
+  try {
+    const value = await AsyncStorage.getItem("SPOTIFY_TOKEN");
+    return value;
   } catch (e) {
     // error reading value
   }
