@@ -34,15 +34,14 @@ interface TrackData {
 
 export default function PostList() {
   const user = useSelector(getUser);
-  const [trackData, setTrackData] = useState<Array<TrackObject>>([]);
   const [search, setSearch] = useState("");
   const dispatch = useAppDispatch();
-  const spotify_token: any = useSelector(spotifyToken);
   const auth_token: any = useSelector(authToken);
   const posts: Array<string> = useSelector(postData);
 
   const handleFetchPosts = async (postsData: any) => {
-    const resultAction = await dispatch(fetchTrackData({ user, postsData }));
+    await dispatch(fetchTrackData({ user, postsData }));
+    // TODO : error handling
   };
 
   useEffect(() => {
