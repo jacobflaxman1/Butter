@@ -6,20 +6,37 @@ import {
   fetchSingleTrackData,
 } from "../../Services/Posts";
 import { track, CustomError } from "../../Models/models";
-import { AsyncActionError } from "../utils";
+import { AsyncActionError, AsyncActionStatus } from "../utils";
 import { sub } from "react-native-reanimated";
 import { spotifyToken } from "../selectors/selectors";
+import thunk from "redux-thunk";
 
 interface PostSliceState {
   posts: Array<string>;
-  status: string;
-  error: AsyncActionError;
+  statusMap: {
+    fetchAllPosts: AsyncActionStatus;
+    fetchTrackData: AsyncActionStatus;
+    submitNewPost: AsyncActionStatus;
+  };
+  errorMap: {
+    fetchAllPosts: AsyncActionError;
+    fetchTrackData: AsyncActionError;
+    submitNewPost: AsyncActionError;
+  };
 }
 
 export const initialState: PostSliceState = {
   posts: [],
-  status: "idle",
-  error: undefined,
+  statusMap: {
+    fetchAllPosts: "idle",
+    fetchTrackData: "idle",
+    submitNewPost: "idle",
+  },
+  errorMap: {
+    fetchAllPosts: undefined,
+    fetchTrackData: undefined,
+    submitNewPost: undefined,
+  },
 };
 
 export const fetchAllPosts = createAsyncThunk(
@@ -52,6 +69,7 @@ export const fetchTrackData = createAsyncThunk(
         postsData,
         spotifyToken
       );
+      thunkApi.dispatch(setTrackData(response.data));
       return response;
     } catch (err) {
       thunkApi.rejectWithValue({
@@ -71,6 +89,7 @@ export const submitNewPost = createAsyncThunk(
       const response: any = await submitPost(uri, description, token);
       console.log("RESPONSE", response);
       thunkApi.dispatch(fetchSingleTrack({ user, uri }));
+      return { user, uri };
     } catch (err) {
       return thunkApi.rejectWithValue({});
     }
@@ -97,32 +116,43 @@ const postSlice = createSlice({
   initialState,
   reducers: {
     setTrackData(state, action) {
-      state.posts = [...action.payload];
+      state.posts = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTrackData.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.statusMap.fetchTrackData = "succeeded";
         state.posts = action.payload;
       })
       .addCase(fetchTrackData.pending, (state) => {
-        state.status = "loading";
+        state.statusMap.fetchTrackData = "loading";
       })
       .addCase(fetchTrackData.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.statusMap.fetchAllPosts = "failed";
+        state.errorMap.fetchTrackData = action.error.message;
       })
       .addCase(submitNewPost.pending, (state, action) => {
-        state.status = "loading";
+        state.statusMap.submitNewPost = "loading";
       })
       .addCase(submitNewPost.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.posts.push(action.payload);
+        state.statusMap.submitNewPost = "succeeded";
+        // state.posts.push({action.payload});
       })
       .addCase(submitNewPost.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.statusMap.submitNewPost = "failed";
+        state.errorMap.submitNewPost = action.error.message;
+      })
+      .addCase(fetchAllPosts.pending, (state) => {
+        state.statusMap.fetchAllPosts = "loading";
+      })
+      .addCase(fetchAllPosts.fulfilled, (state, action) => {
+        state.statusMap.fetchAllPosts = "succeeded";
+        state.posts = action.payload;
+      })
+      .addCase(fetchAllPosts.rejected, (state, action) => {
+        state.statusMap.fetchAllPosts = "failed";
+        state.errorMap.fetchAllPosts = action.error.message;
       });
   },
 });

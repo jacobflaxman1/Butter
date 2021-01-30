@@ -3,11 +3,11 @@ import { StyleSheet, SafeAreaView, FlatList, Text, Image } from "react-native";
 import Post from "../Post/Post";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { getUser } from "../../State/selectors/selectors";
+import { getUser, selectState } from "../../State/selectors/selectors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Searchbar, Card, Button } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
-import { fetchTrackData } from "../../State/slices/postSlice";
+import { fetchTrackData, fetchAllPosts } from "../../State/slices/postSlice";
 import * as Linking from "expo-linking";
 import { useAppDispatch } from "../../State/utils";
 import { fetchSpotifyData, getPostById, getPosts } from "../../Services/Posts";
@@ -38,9 +38,11 @@ export default function PostList() {
   const dispatch = useAppDispatch();
   const auth_token: any = useSelector(authToken);
   const posts: Array<string> = useSelector(postData);
+  const state = useSelector(selectState);
+  console.log("#####STATE", state);
 
   const handleFetchPosts = async (postsData: any) => {
-    await dispatch(fetchTrackData({ user, postsData }));
+    await dispatch(fetchAllPosts({ user, postsData }));
     // TODO : error handling
   };
 
